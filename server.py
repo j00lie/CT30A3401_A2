@@ -2,7 +2,6 @@ from xmlrpc.server import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 import requests
 from socketserver import ThreadingMixIn
 import xml.etree.ElementTree as ET
-import json
 
 
 class NoteServer:
@@ -14,7 +13,7 @@ class NoteServer:
         try:
             tree = ET.parse(self.xml_file)
             root = tree.getroot()
-            matching_elements = root.findall(f".//topic[@name='{topic_name}']")
+            matching_elements = root.findall(f".//topic[@name='{topic_name.lower()}']")
 
             if len(matching_elements) > 0:
                 return [ET.tostring(element).decode() for element in matching_elements]
@@ -34,10 +33,10 @@ class NoteServer:
             tree = ET.parse(self.xml_file)
             root = tree.getroot()
             # Check if the topic already exists
-            existing_topic = root.find(f"./topic[@name='{topic_name}']")
+            existing_topic = root.find(f"./topic[@name='{topic_name.lower()}']")
             if existing_topic is None:
                 # If the topic doesn't exist, create a new element
-                new_topic = ET.Element("topic", {"name": topic_name})
+                new_topic = ET.Element("topic", {"name": topic_name.lower()})
                 root.append(new_topic)
             else:
                 new_topic = existing_topic
@@ -66,21 +65,22 @@ class NoteServer:
         tree = ET.parse(self.xml_file)
         root = tree.getroot()
         # Check if the topic already exists
-        existing_topic = root.find(f"./topic[@name='{topic_name}']")
+        existing_topic = root.find(f"./topic[@name='{topic_name.lower()}']")
         if existing_topic is None:
             return None
         else:
             # Add Wikipedia information to the topic
-            if link:
-                wikipedia = ET.Element("wikipedia")
-                # wikipedia_summary = ET.Element("summary")
-                # wikipedia_summary.text = summary
-                wikipedia_link = ET.Element("link")
-                wikipedia_link.text = link
-                # wikipedia.append(wikipedia_summary)
-                wikipedia.append(wikipedia_link)
-                existing_topic.append(wikipedia)
-                tree.write(self.xml_file, xml_declaration=True)
+            wikipedia = ET.Element("wikipedia")
+            # wikipedia_summary = ET.Element("summary")
+            # wikipedia_summary.text = summary
+            wikipedia_link = ET.Element("link")
+            wikipedia_link.text = link
+            # wikipedia.append(wikipedia_summary)
+            wikipedia.append(wikipedia_link)
+            existing_topic.append(wikipedia)
+            tree.write(self.xml_file, xml_declaration=True)
+
+            return link
 
     def get_wikipedia_info(self, topic_name):
         # Send a GET request to the Wikipedia API
@@ -89,7 +89,7 @@ class NoteServer:
 
         PARAMS = {
             "action": "opensearch",
-            "search": topic_name,
+            "search": topic_name.lower(),
             "limit": "1",
             "format": "json",
         }
@@ -99,23 +99,22 @@ class NoteServer:
         # Check if the response was successful
         if response.status_code == 200:
             data = response.json()
-            # print(data)
+            print(data)
             # summary = data["extract"]
-            full_link = data[-1][0]
-            return full_link
+            if data[-1]:
+                full_link = data[-1][0]
+                return full_link
+            else:
+                return None
         else:
-            return None
-
-
-class MyRequestHandler(SimpleXMLRPCRequestHandler):
-    def __init__(self, request, client_address, server):
-        self.allow_none = True
-        super().__init__(request, client_address, server)
+            return response.status_code
 
 
 class ThreadedXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
-    def __init__(self, addr, requestHandler=MyRequestHandler):
-        SimpleXMLRPCServer.__init__(self, addr, requestHandler=requestHandler)
+    def __init__(self, addr, requestHandler=SimpleXMLRPCRequestHandler):
+        SimpleXMLRPCServer.__init__(
+            self, addr, requestHandler=requestHandler, allow_none=True
+        )
         self.allow_reuse_address = True
 
 
