@@ -2,6 +2,8 @@ from xmlrpc.server import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 import requests
 from socketserver import ThreadingMixIn
 import xml.etree.ElementTree as ET
+import random
+import time
 
 
 class NoteServer:
@@ -15,6 +17,7 @@ class NoteServer:
             root = tree.getroot()
             matching_elements = root.findall(f".//topic[@name='{topic_name.lower()}']")
 
+            # Return elements as string if there are any matches
             if len(matching_elements) > 0:
                 return [ET.tostring(element).decode() for element in matching_elements]
 
@@ -110,6 +113,15 @@ class NoteServer:
             return response.status_code
 
 
+# function to test the multithreading
+def sleep():
+    r = random.randint(2, 10)
+    print("sleeping {} seconds".format(r))
+    time.sleep(r)
+    return "slept {} seconds, exiting".format(r)
+
+
+# Create server with threads
 class ThreadedXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     def __init__(self, addr, requestHandler=SimpleXMLRPCRequestHandler):
         SimpleXMLRPCServer.__init__(
@@ -121,6 +133,7 @@ class ThreadedXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
 if __name__ == "__main__":
     server = ThreadedXMLRPCServer(("localhost", 8000))
     server.register_instance(NoteServer())
+    server.register_function(sleep, "sleep")
 
     try:
         print("Serving...")

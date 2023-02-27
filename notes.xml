@@ -1,37 +1,10 @@
 <?xml version='1.0' encoding='us-ascii'?>
 <data>
-
-    <topic name="test1">
-        <note name="test note 1">
-            <text>testing testing testing</text>
-            <timestamp>02/21/2023 - 16:24:09</timestamp>
-        </note>
-        <note name="test note 2">
-            <text>testing again testing again</text>
-            <timestamp>02/21/2023 - 16:25:08</timestamp>
-        </note>
-        <wikipedia>
-            <link>https://en.wikipedia.org/wiki/This_Is_Not_a_Test_(1962_film)</link>
-        </wikipedia>
-        <wikipedia>
-            <link>https://en.wikipedia.org/wiki/This_Is_Not_a_Test_(1962_film)</link>
-        </wikipedia>
-    </topic>
-    <topic name="test2">
-        <note name="test note 3 in another topic">
-            <text>notes notes notes</text>
-            <timestamp>02/21/2023 - 16:25:57</timestamp>
-        </note>
-    </topic>
-
     <topic name="dog">
         <note name="dog note 1">
-            <text>dog goes wuf wuf</text>
-            <timestamp>02/22/2023 - 16:33:56</timestamp>
+            <text>dog goes wuuf</text>
+            <timestamp>02/27/2023 - 15:48:32</timestamp>
         </note>
-        <wikipedia>
-            <link>https://en.wikipedia.org/wiki/DoG</link>
-        </wikipedia>
         <wikipedia>
             <link>https://en.wikipedia.org/wiki/Dog</link>
         </wikipedia>
